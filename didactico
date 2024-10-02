@@ -1,0 +1,227 @@
+bash
+git init
+git add .
+git commit -m "Primera versión del juego"
+git branch -M main
+git remote add origin https://github.com/tu-usuario/desafio-ortografico.git
+git push -u origin main
+
+
+npx create-react-app desafio-ortografico
+cd desafio-ortografico
+npm start
+
+  desafio-ortografico/
+├── node_modules/
+├── public/
+├── src/
+│   ├── App.js
+│   ├── NaveEspacial.js
+│   ├── Palabra.js
+│   ├── Juego.js
+│   ├── index.js
+├── package.json
+└── README.md
+
+
+  // NaveEspacial.js
+import React, { useState, useEffect } from 'react';
+
+const NaveEspacial = ({ moverIzquierda, moverDerecha, disparar }) => {
+  const [posicion, setPosicion] = useState(50); // Posición de la nave en el eje X
+  
+  useEffect(() => {
+    const manejarMovimiento = (e) => {
+      if (e.key === 'ArrowLeft') {
+        setPosicion((prev) => Math.max(prev - 5, 0));
+      } else if (e.key === 'ArrowRight') {
+        setPosicion((prev) => Math.min(prev + 5, 100));
+      } else if (e.key === ' ') {
+        disparar();
+      }
+    };
+    window.addEventListener('keydown', manejarMovimiento);
+
+    return () => {
+      window.removeEventListener('keydown', manejarMovimiento);
+    };
+  }, [disparar]);
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: '10px',
+        left: `${posicion}%`,
+        width: '50px',
+        height: '50px',
+        backgroundImage: 'url("/images/nave.png")', // Asumimos que tienes una imagen de nave
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+      }}
+    />
+  );
+};
+
+export default NaveEspacial;
+
+
+// Palabra.js
+import React, { useState, useEffect } from 'react';
+
+const Palabra = ({ palabra, esCorrecta, eliminarPalabra, velocidad }) => {
+  const [posicionY, setPosicionY] = useState(0);
+
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      setPosicionY((prevY) => prevY + velocidad);
+    }, 100);
+
+    if (posicionY >= 90) {
+      eliminarPalabra(palabra);
+    }
+
+    return () => clearInterval(intervalo);
+  }, [posicionY, palabra, eliminarPalabra, velocidad]);
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: `${posicionY}%`,
+        left: `${Math.random() * 90}%`,
+        fontSize: '20px',
+        color: esCorrecta ? 'green' : 'red',
+      }}
+    >
+      {palabra}
+    </div>
+  );
+};
+
+export default Palabra;
+
+
+// Juego.js
+import React, { useState, useEffect } from 'react';
+import NaveEspacial from './NaveEspacial';
+import Palabra from './Palabra';
+
+const Juego = () => {
+  const [palabras, setPalabras] = useState([]);
+  const [nivel, setNivel] = useState(1);
+  const [puntaje, setPuntaje] = useState(0);
+
+  const reglasNivel = {
+    1: { palabras: ['rato', 'carro', 'perro'], correctas: ['rato'], incorrectas: ['carro', 'perro'] },
+    2: { palabras: ['gato', 'güevo', 'güira'], correctas: ['gato'], incorrectas: ['güevo', 'güira'] },
+    3: { palabras: ['casa', 'caza'], correctas: ['casa'], incorrectas: ['caza'] },
+    4: { palabras: ['carro', 'güey', 'caza'], correctas: ['carro', 'güey'], incorrectas: ['caza'] }
+  };
+
+  useEffect(() => {
+    const intervaloPalabras = setInterval(() => {
+      const palabrasNivel = reglasNivel[nivel].incorrectas;
+      const nuevaPalabra = palabrasNivel[Math.floor(Math.random() * palabrasNivel.length)];
+      setPalabras((prev) => [...prev, nuevaPalabra]);
+    }, 2000);
+
+    return () => clearInterval(intervaloPalabras);
+  }, [nivel]);
+
+  const eliminarPalabra = (palabra) => {
+    setPalabras((prev) => prev.filter((p) => p !== palabra));
+  };
+
+  const disparar = (palabra) => {
+    if (reglasNivel[nivel].incorrectas.includes(palabra)) {
+      setPuntaje(puntaje + 10);
+    } else {
+      setPuntaje(puntaje - 5);
+    }
+    eliminarPalabra(palabra);
+  };
+
+  return (
+    <div style={{ position: 'relative', height: '100vh', width: '100%', backgroundColor: '#f0f0f0' }}>
+      <h1>Puntaje: {puntaje}</h1>
+      <NaveEspacial disparar={disparar} />
+      {palabras.map((palabra, index) => (
+        <Palabra key={index} palabra={palabra} eliminarPalabra={eliminarPalabra} velocidad={1 + nivel * 0.5} />
+      ))}
+    </div>
+  );
+};
+
+export default Juego;
+
+
+/* styles.css */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #282c34;
+  color: white;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  /* Ajustes para móviles */
+  h1 {
+    font-size: 24px;
+  }
+
+  .nave {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+
+
+const sonidoDisparo = new Audio('/sounds/laser.mp3');
+const sonidoCorrecto = new Audio('/sounds/correct.mp3');
+const sonidoIncorrecto = new Audio('/sounds/wrong.mp3');
+
+// Para reproducir los sonidos:
+disparar = () => {
+  sonidoDisparo.play();
+};
+
+
+
+npm install howler  # Para manejar sonidos en el juego
+
+
+npm install @tensorflow/tfjs
+
+
+  import * as tf from '@tensorflow/tfjs';
+
+// Cargar un modelo pre-entrenado (puedes usar uno específico para tu tarea)
+const modelo = await tf.loadLayersModel('path/al/model.json');
+
+// Predecir si una palabra es correcta o no
+const predecirPalabra = (palabra) => {
+  // Convertir la palabra en una representación numérica (tokenización)
+  const input = tf.tensor([palabra.split('').map(char => char.charCodeAt(0))]);
+  
+  // Hacer la predicción
+  const prediccion = modelo.predict(input);
+  return prediccion > 0.5 ? 'correcto' : 'incorrecto';
+};
+
+// Integrar en tu lógica de disparo
+const disparar = (palabra) => {
+  const esCorrecta = predecirPalabra(palabra);
+  if (esCorrecta === 'correcto') {
+    setPuntaje(puntaje + 10);
+  } else {
+    setPuntaje(puntaje - 5);
+  }
+  eliminarPalabra(palabra);
+};
+
+
+
+  
