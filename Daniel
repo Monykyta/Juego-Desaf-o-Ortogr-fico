@@ -1,4 +1,6 @@
 bash
+/*    /index.html   300
+
 npx create-react-app desafio-ortografico
 cd desafio-ortografico
 npm start
