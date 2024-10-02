@@ -1,6 +1,11 @@
 bash
 npx create-react-app mi-proyecto
 
+git add src package.json
+git commit -m "Agregar carpeta src y archivo package.json"
+git push origin main
+
+
 
 npx create-react-app desafio-ortografico
 cd desafio-ortografico
