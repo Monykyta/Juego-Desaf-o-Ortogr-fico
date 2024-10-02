@@ -1,4 +1,6 @@
 bash
+npx create-react-app mi-proyecto
+
 
 npx create-react-app desafio-ortografico
 cd desafio-ortografico
